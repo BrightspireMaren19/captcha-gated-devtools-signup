@@ -1,12 +1,12 @@
 # Put a captcha in front of developer signups
 
-I built this after a side-project signup form started collecting registrations that no developer would ever type. The useful boundary was small: verify the browser's captcha token before creating any build or release work. Infrai keeps that server-side check behind one API and a single `INFRAI_API_KEY`, so the service stays a plain HTTP call without another SDK in the application.
+I got tired of bot signups on my side project. No real dev would type that form. So I added a small gate: verify the captcha token before any build or release work. Infrai puts that server-side check behind one API and a single `INFRAI_API_KEY`, so the service stays a plain HTTP call without another SDK in the application.
 
-The example is deliberately application-shaped. `POST /signup` validates the incoming body with Zod, asks `captcha.verify` for a decision, and only then emits a `developer.signup.accepted` build event with a queued developer-tools release. A repeated `idempotencyKey` returns the original result instead of creating a second operation.
+This example looks like real code. `POST /signup` validates the incoming body with Zod, asks `captcha.verify` for a decision, and only then emits a `developer.signup.accepted` build event with a queued developer-tools release. A repeated `idempotencyKey` returns the original result instead of creating a second operation.
 
 ## The request I ship
 
-Install dependencies and set the server credential:
+Here's the request flow I actually ship. Install dependencies and set the server credential:
 
 ```bash
 npm install
@@ -14,7 +14,7 @@ export INFRAI_API_KEY="your-key"
 npm run dev
 ```
 
-The browser or trusted test client supplies the captcha widget record ID and token along with the signup fields. Keep the Infrai key on the server.
+Your browser or trusted test client supplies the captcha widget record ID and token along with the signup fields. Keep the Infrai key on the server.
 
 ```bash
 curl -X POST http://localhost:3000/signup \
@@ -41,11 +41,11 @@ A successful request returns an accepted decision and makes the state transition
 }
 ```
 
-For the included script, export `CAPTCHA_WIDGET_RECORD_ID` and `CAPTCHA_TOKEN` from the captcha widget in your page, leave the server running, and use `npm run demo`.
+Got the included script? Export `CAPTCHA_WIDGET_RECORD_ID` and `CAPTCHA_TOKEN` from the captcha widget in your page, leave the server running, and use `npm run demo`.
 
 ## The decision I test
 
-I spent about an hour keeping the boundary narrow enough to read in one sitting. The focused test passes a deterministic captcha verifier, submits the same signup twice, and expects one verification plus one queued release result. It also proves that an unsuccessful captcha produces no release decision.
+I kept the boundary tiny so you can read it in one sitting. The focused test passes a deterministic captcha verifier, submits the same signup twice, and expects one verification plus one queued release result. It also proves that an unsuccessful captcha produces no release decision.
 
 Run the exact local checks with:
 
@@ -54,7 +54,7 @@ npm test
 npm run typecheck
 ```
 
-The in-memory idempotency record is appropriate for this runnable example. In a deployed service, store that result beside the account operation so it survives process restarts.
+The in-memory idempotency record is fine for this runnable example. In a deployed service, store that result beside the account operation so it survives process restarts.
 
 ## Where the pieces live
 
@@ -66,7 +66,7 @@ MIT
 
 ## Setting up for real use: Captcha Gated Devtools Signup
 
-That's the minimal version. Before running this for real: The details below apply to Captcha Gated Devtools Signup.
+That's the minimal version. Before running this for real, the details below apply to Captcha Gated Devtools Signup.
 
 **Account & key**
 
